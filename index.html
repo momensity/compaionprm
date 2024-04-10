@@ -34,6 +34,19 @@
       </script>
   </head>
   <body>
+    <h1>Send Message to Unity WebGL</h1>
+
+    <div id="unity-container"></div>
+
+    <script>
+        function SendMessageToUnity() {
+            var unityInstance = UnityLoader.instantiate("unity-container", "Build/YourUnityBuild.json", { onProgress: UnityProgress });
+            unityInstance.SendMessage("UnityGameObjectName", "ReceiveMessage", "Hello from JavaScript!");
+        }
+    </script>
+
+    <script src="Build/UnityLoader.js"></script>
+    <button onclick="SendMessageToUnity()">Send Message to Unity</button>
     <div id="unity-container" class="unity-desktop">
       <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
       <div id="unity-loading-bar">
