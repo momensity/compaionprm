@@ -1,157 +1,191 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | Audio Spectrum</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
-    <script type='text/javascript'>
-      /*
-      WebGLInject - Part of Simple Spectrum V2.1 by Sam Boyer.
-      */
-      window.SimpleSpectrum = {};
-      window.AudioContext = (function(){
-          var ACConstructor = window.AudioContext || window.webkitAudioContext; // keep a reference to the original function
-          // console.log('AudioContext Constructor overridden');
-          return function(){
-              var ac = new ACConstructor();
-              // console.log('AudioContext constructed');
-              window.SimpleSpectrum.ac = ac;
-              window.SimpleSpectrum.a = ac.createAnalyser();
-              window.SimpleSpectrum.a.smoothingTimeConstant = 0;
-              window.SimpleSpectrum.fa = new Uint8Array(window.SimpleSpectrum.a.frequencyBinCount); // frequency array, size of frequencyBinCount
-              window.SimpleSpectrum.la = new Uint8Array(window.SimpleSpectrum.a.fftSize); // loudness array, size of fftSize
-              window.SimpleSpectrum.a.connect(ac.destination); // connect the AnalyserNode to the AudioContext's destination.
-              ac.actualDestination = ac.destination; // keep a reference to the destination.
-              Object.defineProperty(ac, 'destination', { // replace ac.destination with our AnalyserNode.
-                  value: window.SimpleSpectrum.a,
-                  writable: false
-              });
-              return ac; // send our modified AudioContext back to Unity.
-          }
-      })();
-      </script>
-  </head>
-  <body>
-    <h1>Send Message to Unity WebGL</h1>
 
-    <div id="unity-container"></div>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Unity Web Player | Audio Spectrum</title>
+  <link rel="shortcut icon" href="TemplateData/favicon.ico">
+  <link rel="stylesheet" href="TemplateData/style.css">
+  <script type='text/javascript'>
+    window.SimpleSpectrum = {};
+    window.AudioContext = (function () {
+      var ACConstructor = window.AudioContext || window.webkitAudioContext;
+      return function () {
+        var ac = new ACConstructor();
+        window.SimpleSpectrum.ac = ac;
+        window.SimpleSpectrum.a = ac.createAnalyser();
+        window.SimpleSpectrum.a.smoothingTimeConstant = 0;
+        window.SimpleSpectrum.fa = new Uint8Array(window.SimpleSpectrum.a.frequencyBinCount);
+        window.SimpleSpectrum.la = new Uint8Array(window.SimpleSpectrum.a.fftSize);
+        window.SimpleSpectrum.a.connect(ac.destination);
+        ac.actualDestination = ac.destination;
+        Object.defineProperty(ac, 'destination', {
+          value: window.SimpleSpectrum.a,
+          writable: false
+        });
+        return ac;
+      }
+    })();
+  </script>
+</head>
 
-    <script>
-        function SendMessageToUnity() {
-            var unityInstance = UnityLoader.instantiate("unity-container", "Build/YourUnityBuild.json", { onProgress: UnityProgress });
-            unityInstance.SendMessage("UnityGameObjectName", "ReceiveMessage", "Hello from JavaScript!");
-        }
-    </script>
-
-    <script src="Build/UnityLoader.js"></script>
-    <button onclick="SendMessageToUnity()">Send Message to Unity</button>
-    <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
-        </div>
-      </div>
-      <div id="unity-warning"> </div>
-      <div id="unity-footer">
-        <div id="unity-logo-title-footer"></div>
-        <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">Audio Spectrum</div>
+<body>
+  <input type="file" id="fileInput" accept="audio/*">
+  <div> <button id="thinkButton">Trigger Think</button></div>
+  <div> <button id="listenButton">Trigger Listen</button></div>
+  <div id="unity-container" class="unity-desktop">
+    <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
+    <div id="unity-loading-bar">
+      <div id="unity-logo"></div>
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
       </div>
     </div>
-    <script>
-      var canvas = document.querySelector("#unity-canvas");
+    <div id="unity-warning"> </div>
+    <div id="unity-footer">
+      <div id="unity-logo-title-footer"></div>
+      <div id="unity-fullscreen-button"></div>
+      <div id="unity-build-title">Audio Spectrum</div>
+    </div>
+  </div>
+  <script>
 
-      // Shows a temporary message banner/ribbon for a few seconds, or
-      // a permanent error message on top of the canvas if type=='error'.
-      // If type=='warning', a yellow highlight color is used.
-      // Modify or remove this function to customize the visually presented
-      // way that non-critical warnings and error messages are presented to the
-      // user.
-      function unityShowBanner(msg, type) {
-        var warningBanner = document.querySelector("#unity-warning");
-        function updateBannerVisibility() {
-          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
-        }
-        var div = document.createElement('div');
-        div.innerHTML = msg;
-        warningBanner.appendChild(div);
-        if (type == 'error') div.style = 'background: red; padding: 10px;';
-        else {
-          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
-          setTimeout(function() {
-            warningBanner.removeChild(div);
-            updateBannerVisibility();
-          }, 5000);
-        }
-        updateBannerVisibility();
+    var canvas = document.querySelector("#unity-canvas");
+    var instance;
+
+    function unityShowBanner(msg, type) {
+      var warningBanner = document.querySelector("#unity-warning");
+      function updateBannerVisibility() {
+        warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
       }
+      var div = document.createElement('div');
+      div.innerHTML = msg;
+      warningBanner.appendChild(div);
+      if (type == 'error') div.style = 'background: red; padding: 10px;';
+      else {
+        if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+        setTimeout(function () {
+          warningBanner.removeChild(div);
+          updateBannerVisibility();
+        }, 5000);
+      }
+      updateBannerVisibility();
+    }
 
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/audio spectrum build.loader.js";
-      var config = {
-        arguments: [],
-        dataUrl: buildUrl + "/audio spectrum build.data",
-        frameworkUrl: buildUrl + "/audio spectrum build.framework.js",
-        codeUrl: buildUrl + "/audio spectrum build.wasm",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "Audio Spectrum",
-        productVersion: "0.1.0",
-        showBanner: unityShowBanner,
+    var buildUrl = "Build";
+    var loaderUrl = buildUrl + "/audio spectrum build.loader.js";
+    var config = {
+      arguments: [],
+      dataUrl: buildUrl + "/audio spectrum build.data",
+      frameworkUrl: buildUrl + "/audio spectrum build.framework.js",
+      codeUrl: buildUrl + "/audio spectrum build.wasm",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "DefaultCompany",
+      productName: "Audio Spectrum",
+      productVersion: "0.1.0",
+      showBanner: unityShowBanner,
+    };
+
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      var meta = document.createElement('meta');
+      meta.name = 'viewport';
+      meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+      document.getElementsByTagName('head')[0].appendChild(meta);
+      document.querySelector("#unity-container").className = "unity-mobile";
+      canvas.className = "unity-mobile";
+    } else {
+      canvas.style.width = "960px";
+      canvas.style.height = "600px";
+    }
+
+    document.querySelector("#unity-loading-bar").style.display = "block";
+
+    var script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = () => {
+      createUnityInstance(canvas, config, (progress) => {
+        document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
+      }).then((unityInstance) => {
+        instance = unityInstance;
+        document.querySelector("#unity-loading-bar").style.display = "none";
+
+        document.querySelector("#unity-fullscreen-button").onclick = () => {
+          unityInstance.SetFullscreen(1);
+        };
+        document.querySelector("#thinkButton").onclick = () => {
+          unityInstance.SendMessage("Message Receiver", "Receive", "think");
+
+          document.querySelector("#listenButton").onclick = () => {
+            unityInstance.SendMessage("Message Receiver", "Receive", "listen");
+          };
+
+        };
+
+      }).catch((message) => {
+        alert(message);
+      });
+    };
+    document.getElementById('fileInput').addEventListener('change', function (event) {
+      var file = event.target.files[0];
+      var reader = new FileReader();
+
+      reader.onload = function () {
+        var bytes = new Uint8Array(reader.result);
+        var base64String = base64ArrayBuffer(bytes);
+        sendBase64StringToUnity(base64String);
       };
 
-      // By default, Unity keeps WebGL canvas render target size matched with
-      // the DOM size of the canvas element (scaled by window.devicePixelRatio)
-      // Set this to false if you want to decouple this synchronization from
-      // happening inside the engine, and you would instead like to size up
-      // the canvas DOM size and WebGL render target sizes yourself.
-      // config.matchWebGLToCanvasSize = false;
+      reader.readAsArrayBuffer(file);
+    });
 
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
+    function base64ArrayBuffer(arrayBuffer) {
+      var base64 = '';
+      var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
-        document.querySelector("#unity-container").className = "unity-mobile";
-        canvas.className = "unity-mobile";
+      var bytes = new Uint8Array(arrayBuffer);
+      var byteLength = bytes.byteLength;
+      var byteRemainder = byteLength % 3;
+      var mainLength = byteLength - byteRemainder;
 
-        // To lower canvas resolution on mobile devices to gain some
-        // performance, uncomment the following line:
-        // config.devicePixelRatio = 1;
+      var a, b, c, d;
+      var chunk;
 
-
-      } else {
-        // Desktop style: Render the game canvas in a window that can be maximized to fullscreen:
-        canvas.style.width = "960px";
-        canvas.style.height = "600px";
+      for (var i = 0; i < mainLength; i += 3) {
+        chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+        a = (chunk & 16515072) >> 18;
+        b = (chunk & 258048) >> 12;
+        c = (chunk & 4032) >> 6;
+        d = chunk & 63;
+        base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d];
       }
 
-      document.querySelector("#unity-loading-bar").style.display = "block";
+      if (byteRemainder == 1) {
+        chunk = bytes[mainLength];
+        a = (chunk & 252) >> 2;
+        b = (chunk & 3) << 4;
+        base64 += encodings[a] + encodings[b] + '==';
+      } else if (byteRemainder == 2) {
+        chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1];
+        a = (chunk & 64512) >> 10;
+        b = (chunk & 1008) >> 4;
+        c = (chunk & 15) << 2;
+        base64 += encodings[a] + encodings[b] + encodings[c] + '=';
+      }
 
-      var script = document.createElement("script");
-      script.src = loaderUrl;
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
-              }).then((unityInstance) => {
-                document.querySelector("#unity-loading-bar").style.display = "none";
-                document.querySelector("#unity-fullscreen-button").onclick = () => {
-                  unityInstance.SetFullscreen(1);
-                };
+      return base64;
+    }
 
-              }).catch((message) => {
-                alert(message);
-              });
-            };
+    function sendBase64StringToUnity(base64String) {
+      if (instance) {
+        instance.SendMessage("Message Receiver", "Receive", base64String);
+      } else {
+        console.error("Unity instance not initialized.");
+      }
+    }
+    document.body.appendChild(script);
 
-      document.body.appendChild(script);
+  </script>
+</body>
 
-    </script>
-  </body>
 </html>
