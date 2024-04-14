@@ -108,23 +108,26 @@
         document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
       }).then((unityInstance) => {
         instance = unityInstance;
+
         document.querySelector("#unity-loading-bar").style.display = "none";
 
         document.querySelector("#unity-fullscreen-button").onclick = () => {
           unityInstance.SetFullscreen(1);
         };
-        document.querySelector("#thinkButton").onclick = () => {
-          unityInstance.SendMessage("Message Receiver", "Receive", "think");
 
-          document.querySelector("#listenButton").onclick = () => {
-            unityInstance.SendMessage("Message Receiver", "Receive", "listen");
-          };
-
-        };
 
       }).catch((message) => {
         alert(message);
       });
+    };
+
+
+    document.querySelector("#thinkButton").onclick = () => {
+      instance.SendMessage("Message Receiver", "Receive", "think");
+    };
+
+    document.querySelector("#listenButton").onclick = () => {
+      instance.SendMessage("Message Receiver", "Receive", "listen");
     };
     document.getElementById('fileInput').addEventListener('change', function (event) {
       var file = event.target.files[0];
