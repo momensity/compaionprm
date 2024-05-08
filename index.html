@@ -8,6 +8,9 @@
   <link rel="shortcut icon" href="TemplateData/favicon.ico">
   <link rel="stylesheet" href="TemplateData/style.css">
   <script type='text/javascript'>
+       window.SpeakStopCallback = function(){ window.alert('Audio Stopped!!') };
+       window.GetCurrentState = function(value){ window.alert('current state : ' + value) };
+
     window.SimpleSpectrum = {};
     window.AudioContext = (function () {
       var ACConstructor = window.AudioContext || window.webkitAudioContext;
@@ -124,10 +127,14 @@
 
     document.querySelector("#thinkButton").onclick = () => {
       instance.SendMessage("Message Receiver", "Receive", "think");
+      instance.SendMessage("Current State Updater", "Get");
+
     };
 
     document.querySelector("#listenButton").onclick = () => {
       instance.SendMessage("Message Receiver", "Receive", "listen");
+      instance.SendMessage("Current State Updater", "Get");
+
     };
     document.getElementById('fileInput').addEventListener('change', function (event) {
       var file = event.target.files[0];
