@@ -8,8 +8,8 @@
   <link rel="shortcut icon" href="TemplateData/favicon.ico">
   <link rel="stylesheet" href="TemplateData/style.css">
   <script type='text/javascript'>
-       window.SpeakStopCallback = function(){ window.alert('Audio Stopped!!') };
-       window.GetCurrentState = function(value){ window.alert('current state : ' + value) };
+       window.SpeakStopCallback = function(){ };
+       window.GetCurrentState = function(value){  };
 
     window.SimpleSpectrum = {};
     window.AudioContext = (function () {
@@ -77,18 +77,18 @@
     }
 
     var buildUrl = "Build";
-    var loaderUrl = buildUrl + "/audio spectrum build.loader.js";
-    var config = {
-      arguments: [],
-      dataUrl: buildUrl + "/audio spectrum build.data",
-      frameworkUrl: buildUrl + "/audio spectrum build.framework.js",
-      codeUrl: buildUrl + "/audio spectrum build.wasm",
-      streamingAssetsUrl: "StreamingAssets",
-      companyName: "DefaultCompany",
-      productName: "Audio Spectrum",
-      productVersion: "0.1.0",
-      showBanner: unityShowBanner,
-    };
+      var loaderUrl = buildUrl + "/The-Icon-AI-webgl.loader.js";
+      var config = {
+        arguments: [],
+        dataUrl: buildUrl + "/The-Icon-AI-webgl.data",
+        frameworkUrl: buildUrl + "/The-Icon-AI-webgl.framework.js",
+        codeUrl: buildUrl + "/The-Icon-AI-webgl.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "momensity",
+        productName: "The Icon Ai Animation",
+        productVersion: "0.1.0",
+        showBanner: unityShowBanner,
+      };
 
     if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
       var meta = document.createElement('meta');
