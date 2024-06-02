@@ -37,6 +37,13 @@
   <input type="file" id="fileInput" accept="audio/*">
   <div> <button id="thinkButton">Trigger Think</button></div>
   <div> <button id="listenButton">Trigger Listen</button></div>
+  <div> <button id="defy">Trigger Defy</button></div>
+  <div> <button id="beyond">Trigger Beyond</button></div>
+  <div> <button id="advantage">Trigger Advantage</button></div>
+  <div> <button id="enterprise">Trigger Enterprise</button></div>
+  <div> <button id="catalyst">Trigger Catalyst</button></div>
+  <div> <button id="presidium">Trigger Presidium</button></div>
+  <div> <button id="altru">Trigger Altru</button></div>
   <div id="unity-container" class="unity-desktop">
     <canvas id="unity-canvas" width=960 height=600 tabindex="-1"></canvas>
     <div id="unity-loading-bar">
@@ -77,12 +84,12 @@
     }
 
     var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/The-Icon-AI-webgl.loader.js";
+      var loaderUrl = buildUrl + "/icon-unity.loader.js";
       var config = {
         arguments: [],
-        dataUrl: buildUrl + "/The-Icon-AI-webgl.data",
-        frameworkUrl: buildUrl + "/The-Icon-AI-webgl.framework.js",
-        codeUrl: buildUrl + "/The-Icon-AI-webgl.wasm",
+        dataUrl: buildUrl + "/icon-unity.data",
+        frameworkUrl: buildUrl + "/icon-unity.framework.js",
+        codeUrl: buildUrl + "/icon-unity.wasm",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "momensity",
         productName: "The Icon Ai Animation",
@@ -134,6 +141,34 @@
     document.querySelector("#listenButton").onclick = () => {
       instance.SendMessage("Message Receiver", "Receive", "listen");
       instance.SendMessage("Current State Updater", "Get");
+
+    };
+    document.querySelector("#defy").onclick = () => {
+      instance.SendMessage("Icon Class", "Set", "defy");
+
+    };
+    document.querySelector("#beyond").onclick = () => {
+      instance.SendMessage("Icon Class", "Set", "beyond");
+
+    };
+    document.querySelector("#advantage").onclick = () => {
+      instance.SendMessage("Icon Class", "Set", "advantage");
+
+    };
+    document.querySelector("#enterprise").onclick = () => {
+      instance.SendMessage("Icon Class", "Set", "enterprise");
+
+    };
+    document.querySelector("#catalyst").onclick = () => {
+      instance.SendMessage("Icon Class", "Set", "catalyst");
+
+    };
+    document.querySelector("#presidium").onclick = () => {
+      instance.SendMessage("Icon Class", "Set", "presidium");
+
+    };
+    document.querySelector("#altru").onclick = () => {
+      instance.SendMessage("Icon Class", "Set", "altru");
 
     };
     document.getElementById('fileInput').addEventListener('change', function (event) {
